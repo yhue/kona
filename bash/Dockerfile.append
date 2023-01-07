@@ -1,0 +1,9 @@
+
+RUN set -eux; \
+    apk add --no-cache \
+        fzf \
+        ripgrep \
+        jq \
+        bat \
+        vim \
+    ;

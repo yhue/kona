@@ -1,0 +1,45 @@
+name: build-kona-bash
+run-name: Build kona-bash by @${{ github.actor }}
+
+on:
+  pull_request:
+  push:
+  schedule:
+    - cron: 15 1 * * 0
+
+jobs:
+  build-kona-bash:
+    name: Build Kona Bash Image
+    runs-on: ubuntu-latest
+      env:
+        ARG_BASH_VERSION: 5.2
+    steps:
+      - name: checkout yhue/kona
+        uses: actions/checkout@v3
+        with:
+          path: kona
+
+      - name: checkout tianon/docker-bash
+        uses: actions/checkout@v3
+        with:
+          repository: tianon/docker-bash
+          path: dock
+
+      - name: prepare Dockerfile
+        run: |
+          sed 's/alpine:3.16/alpine:3.17/' dock/${ARG_BASH_VERSION}/Dockerfile \
+            | { cat; cat kona/bash/Dockerfile.append; } \
+            > dock/${ARG_BASH_VERSION}/Dockerfile.kona-bash
+
+      - name: login docker registry
+        uses: actions-hub/docker/login@master
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REGISTRY_URL: docker.io
+
+      - name: build & push kona-bash image
+        run: |
+          cd dock/${ARG_BASH_VERSION}
+          DOCKER_BUILDKIT=1 docker build --tag ipcyron/kona:bash-${ARG_BASH_VERSION} --file Dockerfile.kona-bash .
+          docker push ipcyron/kona:bash-${ARG_BASH_VERSION}
