@@ -14,31 +14,31 @@ jobs:
     env:
       ARG_BASH_VERSION: 5.2
     steps:
-      - name: checkout yhue/kona
+      -
+        name: checkout yhue/kona
         uses: actions/checkout@v3
         with:
           path: kona
-
-      - name: checkout tianon/docker-bash
+      -
+        name: checkout tianon/docker-bash
         uses: actions/checkout@v3
         with:
           repository: tianon/docker-bash
           path: dock
-
-      - name: prepare Dockerfile
+      -
+        name: prepare Dockerfile
         run: |
           sed 's/alpine:3.16/alpine:3.17/' dock/${ARG_BASH_VERSION}/Dockerfile \
             | { cat; cat kona/bash/Dockerfile.append; } \
             > dock/${ARG_BASH_VERSION}/Dockerfile.kona-bash
-
       -
         name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: build & push kona-bash image
+      -
+        name: build & push kona-bash image
         run: |
           cd dock/${ARG_BASH_VERSION}
           DOCKER_BUILDKIT=1 docker build --tag ipcyron/kona:bash-${ARG_BASH_VERSION} --file Dockerfile.kona-bash .
