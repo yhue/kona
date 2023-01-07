@@ -11,8 +11,8 @@ jobs:
   build-kona-bash:
     name: Build Kona Bash Image
     runs-on: ubuntu-latest
-      env:
-        ARG_BASH_VERSION: 5.2
+    env:
+      ARG_BASH_VERSION: 5.2
     steps:
       - name: checkout yhue/kona
         uses: actions/checkout@v3
